@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор геотехнического мониторинга</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/index-style.css">
+</head>
+<body class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Заголовок -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4 title-shadow">Калькулятор</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Рассчет контролируемых параметров при геотехническом мониторинге согласно требованиям в приложении Л в <strong>СП 22.13330.2016</strong></span>
+            </p>
+        </div>
+
+        <!-- Грид с блоками -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Блок 1 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-blue-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                        <span class="text-blue-600 font-bold text-xl">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Основания фундаментов и конструкций вновь возводимых сооружений</h3>
+                </div>
+                <p class="text-gray-600">Расчет параметров для новых строительных объектов и их фундаментных оснований</p>
+            </a>
+
+            <!-- Блок 2 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-green-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                        <span class="text-green-600 font-bold text-xl">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Основания фундаментов и конструкций реконструируемых сооружений</h3>
+                </div>
+                <p class="text-gray-600">Мониторинг и расчет для объектов, подвергающихся реконструкции и модернизации</p>
+            </a>
+
+            <!-- Блок 3 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-purple-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                        <span class="text-purple-600 font-bold text-xl">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Конструкции ограждения котлована возводимых зданий и реконструкций</h3>
+                </div>
+                <p class="text-gray-600">Анализ параметров ограждающих конструкций при строительстве и реконструкции</p>
+            </a>
+
+            <!-- Блок 4 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-yellow-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                        <span class="text-yellow-600 font-bold text-xl">4</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Массивы грунта, окружающего вновь возводимые и реконструируемые сооружения</h3>
+                </div>
+                <p class="text-gray-600">Оценка состояния грунтовых массивов в зоне строительного воздействия</p>
+            </a>
+
+            <!-- Блок 5 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-red-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                        <span class="text-red-600 font-bold text-xl">5</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Сооружения окружающей застройки в зоне влияния нового строительства или прокладки подземных инженерных коммуникаций</h3>
+                </div>
+                <p class="text-gray-600">Контроль параметров существующих зданий в зоне строительного воздействия</p>
+            </a>
+
+            <!-- Блок 6 -->
+            <a href="#" class="grid-item rounded-xl bg-white p-6 border border-gray-200 hover:border-indigo-500">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                        <span class="text-indigo-600 font-bold text-xl">6</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Подземные инженерные коммуникации в зоне влияния строительства или подземных коммуникаций</h3>
+                </div>
+                <p class="text-gray-600">Мониторинг инженерных сетей при проведении строительных работ</p>
+            </a>
+        </div>
+
+        <!-- Подвал -->
+        <div class="mt-12 pt-6 border-t border-gray-200 text-center">
+            <p class="text-gray-500">© 2023 Калькулятор геотехнического мониторинга. СП 22.13330.2016</p>
+        </div>
+    </div>
+
+    <link rel="script" href="assets/js/index-script.js">
+</body>
+</html>
