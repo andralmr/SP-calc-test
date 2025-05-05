@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Геотехнический опрос</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .option-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            background-color: #f0f9ff;
+        }
+        .option-card.selected {
+            background-color: #e0f2fe;
+            border-color: #107f8c;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .btn-primary {
+            background-color: #107f8c;
+        }
+        .btn-primary:hover {
+            background-color: #0d6c77;
+        }
+        .progress-bar {
+            background-color: #107f8c;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl mx-auto">
+        <!-- Стартовая карточка -->
+        <div id="start-card" class="card bg-white rounded-xl p-6 md:p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Геотехнический опрос</h1>
+                <p class="text-gray-600">Этот опрос поможет определить контролируемые параметры согласно приложению Л в СП 22.13330.2016 (Таблица Л.4)</p>
+            </div>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            Вам будет предложено ответить на несколько вопросов о параметрах вашего строительного проекта. 
+                            На основе ваших ответов система определит, какие параметры необходимо контролировать.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center mt-8">
+                <button onclick="startSurvey()" class="px-6 py-3 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                    Начать опрос <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Опрос -->
+        <div id="survey-container" class="hidden">
+            <div id="app" class="card bg-white rounded-xl p-6 md:p-8">
+                <!-- Прогресс бар -->
+                <div class="mb-6">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="progress-bar h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="text-right mt-1 text-sm text-gray-500">
+                        <span id="current-step">1</span>/<span id="total-steps">3</span>
+                    </div>
+                </div>
+
+                <!-- Контент опроса -->
+                <div id="survey-content" class="min-h-64">
+                    <!-- Вопрос 1: Глубина котлована -->
+                    <div id="question-1" class="question">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Глубина котлована?</h2>
+                        <div class="mb-6">
+                            <label for="depth" class="block text-sm font-medium text-gray-700 mb-2">Введите глубину котлована (Hк) в метрах:</label>
+                            <div class="relative">
+                                <input type="number" id="depth" min="5" step="0.1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Например: 5.5">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500">м</span>
+                                </div>
+                            </div>
+                            <p id="depth-error" class="mt-2 text-sm text-red-600 hidden">Пожалуйста, введите число больше 5</p>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="handleQuestion1()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                                Далее <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Вопрос 2: Геотехническая категория -->
+                    <div id="question-2" class="question hidden">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Геотехническая категория?</h2>
+                        <div class="grid gap-4 mb-6">
+                            <div id="option-1" onclick="selectOption(1)" class="option-card p-4 border rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex items-center h-5">
+                                        <input id="category-1" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    </div>
+                                    <label for="category-1" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                                        2 категория
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="option-2" onclick="selectOption(2)" class="option-card p-4 border rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex items-center h-5">
+                                        <input id="category-2" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    </div>
+                                    <label for="category-2" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                                        3 категория
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="category-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите категорию</p>
+                        <div class="flex justify-between">
+                            <button onclick="backToQuestion1()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                                <i class="fas fa-arrow-left mr-2"></i> Назад
+                            </button>
+                            <button onclick="handleQuestion2()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                                Далее <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Вопрос 3: Уровень подземных вод -->
+                    <div id="question-3" class="question hidden">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">3. Прогнозируемый уровень подземных вод выше дна котлована?</h2>
+                        <div class="grid gap-4 mb-6">
+                            <div id="option-yes" onclick="selectWaterOption('yes')" class="option-card p-4 border rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex items-center h-5">
+                                        <input id="water-yes" name="water" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    </div>
+                                    <label for="water-yes" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                                        Да
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="option-no" onclick="selectWaterOption('no')" class="option-card p-4 border rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex items-center h-5">
+                                        <input id="water-no" name="water" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    </div>
+                                    <label for="water-no" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                                        Нет
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="water-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите вариант</p>
+                        <div class="flex justify-between">
+                            <button onclick="backToQuestion2()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                                <i class="fas fa-arrow-left mr-2"></i> Назад
+                            </button>
+                            <button onclick="handleQuestion3()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                                Завершить <i class="fas fa-check ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Результат -->
+                    <div id="result" class="hidden">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        Согласно приложению Л в СП 22.13330.2016 (Таблица Л.4) в вашем случае контролируются следующие параметры:
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="result-content" class="mb-8 p-4 bg-gray-50 rounded-lg">
+                            <!-- Результат будет вставлен сюда -->
+                        </div>
+                        <div class="flex justify-between">
+                            <button onclick="restartSurvey()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                                <i class="fas fa-redo mr-2"></i> Пройти заново
+                            </button>
+                            <button onclick="downloadResult()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                                <i class="fas fa-download mr-2"></i> Скачать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Параметры для опроса
+        const parameters = [
+            "1. Вертикальные перемещения поверхностных грунтовых марок",
+            "2. Горизонтальные перемещения поверхностных грунтовых марок",
+            "3. Уровень подземных вод",
+            "4. Вертикальные перемещения массива грунта по глубине",
+            "5. Горизонтальные перемещения массива грунта по глубине",
+            "6. Температура и химический состав подземных вод"
+        ];
+
+        // Состояние опроса
+        const surveyState = {
+            depth: null,
+            category: null,
+            waterLevel: null
+        };
+
+        // Обработчики событий
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработка нажатия Enter для первого вопроса
+            document.getElementById('depth').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleQuestion1();
+                }
+            });
+        });
+
+        function startSurvey() {
+            document.getElementById('start-card').classList.add('hidden');
+            document.getElementById('survey-container').classList.remove('hidden');
+            updateProgress(1, 3);
+        }
+
+        function handleQuestion1() {
+            const depthInput = document.getElementById('depth');
+            const depthError = document.getElementById('depth-error');
+            const depth = parseFloat(depthInput.value);
+
+            if (isNaN(depth) || depth <= 5) {
+                depthError.classList.remove('hidden');
+                depthInput.focus();
+                return;
+            }
+
+            depthError.classList.add('hidden');
+            surveyState.depth = depth;
+
+            // Проверка условия для завершения опроса
+            if (depth >= 15) {
+                showResult([
+                    parameters[0],
+                    parameters[1],
+                    parameters[2],
+                    `Услуги ${parameters[3]}, ${parameters[4]}, ${parameters[5]} выполняются по специальному заданию.`
+                ]);
+                return;
+            }
+
+            // Переход к следующему вопросу
+            document.getElementById('question-1').classList.add('hidden');
+            document.getElementById('question-2').classList.remove('hidden');
+            updateProgress(2, 3);
+        }
+
+        function handleQuestion2() {
+            const category1 = document.getElementById('category-1');
+            const category2 = document.getElementById('category-2');
+            const categoryError = document.getElementById('category-error');
+
+            if (!category1.checked && !category2.checked) {
+                categoryError.classList.remove('hidden');
+                return;
+            }
+
+            categoryError.classList.add('hidden');
+            surveyState.category = category1.checked ? 1 : 2;
+
+            // Проверка условий
+            if (surveyState.depth < 10) {
+                if (surveyState.category === 1) {
+                    showResult([
+                        parameters[0],
+                        `Услуга ${parameters[5]} выполняется по специальному заданию.`
+                    ]);
+                } else {
+                    // Переход к вопросу 3
+                    document.getElementById('question-2').classList.add('hidden');
+                    document.getElementById('question-3').classList.remove('hidden');
+                    updateProgress(3, 3);
+                }
+            } else {
+                if (surveyState.category === 1) {
+                    // Переход к вопросу 3
+                    document.getElementById('question-2').classList.add('hidden');
+                    document.getElementById('question-3').classList.remove('hidden');
+                    updateProgress(3, 3);
+                } else {
+                    showResult([
+                        parameters[0],
+                        parameters[1],
+                        parameters[2],
+                        `Услуги ${parameters[3]}, ${parameters[4]}, ${parameters[5]} выполняются по специальному заданию.`
+                    ]);
+                }
+            }
+        }
+
+        function handleQuestion3() {
+            const waterYes = document.getElementById('water-yes');
+            const waterNo = document.getElementById('water-no');
+            const waterError = document.getElementById('water-error');
+
+            if (!waterYes.checked && !waterNo.checked) {
+                waterError.classList.remove('hidden');
+                return;
+            }
+
+            waterError.classList.add('hidden');
+            surveyState.waterLevel = waterYes.checked ? 'yes' : 'no';
+
+            // Определение результата
+            if (surveyState.depth < 10 && surveyState.category === 2) {
+                if (surveyState.waterLevel === 'yes') {
+                    showResult([
+                        parameters[0],
+                        parameters[1],
+                        parameters[2],
+                        `Услуга ${parameters[5]} выполняется по специальному заданию.`
+                    ]);
+                } else {
+                    showResult([
+                        parameters[0],
+                        parameters[1],
+                        `Услуга ${parameters[5]} выполняется по специальному заданию.`
+                    ]);
+                }
+            } else {
+                if (surveyState.waterLevel === 'yes') {
+                    showResult([
+                        parameters[0],
+                        parameters[1],
+                        parameters[2],
+                        `Услуга ${parameters[5]} выполняется по специальному заданию.`
+                    ]);
+                } else {
+                    showResult([
+                        parameters[0],
+                        parameters[1],
+                        `Услуга ${parameters[5]} выполняется по специальному заданию.`
+                    ]);
+                }
+            }
+        }
+
+        function showResult(resultItems) {
+            const resultContent = document.getElementById('result-content');
+            resultContent.innerHTML = '';
+
+            const list = document.createElement('ul');
+            list.className = 'list-disc pl-5 space-y-2';
+
+            resultItems.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'text-gray-700';
+                li.textContent = item;
+                list.appendChild(li);
+            });
+
+            resultContent.appendChild(list);
+
+            // Скрываем все вопросы и показываем результат
+            document.querySelectorAll('.question').forEach(q => q.classList.add('hidden'));
+            document.getElementById('result').classList.remove('hidden');
+            updateProgress(3, 3);
+        }
+
+        // Вспомогательные функции
+        function selectOption(option) {
+            document.getElementById(`category-${option}`).checked = true;
+            document.getElementById(`option-1`).classList.toggle('selected', option === 1);
+            document.getElementById(`option-2`).classList.toggle('selected', option === 2);
+            document.getElementById('category-error').classList.add('hidden');
+        }
+
+        function selectWaterOption(option) {
+            document.getElementById(`water-${option}`).checked = true;
+            document.getElementById(`option-yes`).classList.toggle('selected', option === 'yes');
+            document.getElementById(`option-no`).classList.toggle('selected', option === 'no');
+            document.getElementById('water-error').classList.add('hidden');
+        }
+
+        function backToQuestion1() {
+            document.getElementById('question-2').classList.add('hidden');
+            document.getElementById('question-1').classList.remove('hidden');
+            updateProgress(1, 3);
+        }
+
+        function backToQuestion2() {
+            document.getElementById('question-3').classList.add('hidden');
+            document.getElementById('question-2').classList.remove('hidden');
+            updateProgress(2, 3);
+        }
+
+        function restartSurvey() {
+            // Сброс состояния
+            surveyState.depth = null;
+            surveyState.category = null;
+            surveyState.waterLevel = null;
+
+            // Сброс формы
+            document.getElementById('depth').value = '';
+            document.getElementById('category-1').checked = false;
+            document.getElementById('category-2').checked = false;
+            document.getElementById('water-yes').checked = false;
+            document.getElementById('water-no').checked = false;
+            document.getElementById('option-1').classList.remove('selected');
+            document.getElementById('option-2').classList.remove('selected');
+            document.getElementById('option-yes').classList.remove('selected');
+            document.getElementById('option-no').classList.remove('selected');
+
+            // Показ первого вопроса
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('question-1').classList.remove('hidden');
+            updateProgress(1, 3);
+        }
+
+        function downloadResult() {
+            // В реальном приложении здесь была бы логика для скачивания результата
+            alert('Результат опроса готов к скачиванию. В реальном приложении здесь был бы PDF или другой формат.');
+        }
+
+        function updateProgress(current, total) {
+            document.getElementById('current-step').textContent = current;
+            document.getElementById('total-steps').textContent = total;
+            document.getElementById('progress-bar').style.width = `${(current / total) * 100}%`;
+        }
+    </script>
+</body>
+</html>
