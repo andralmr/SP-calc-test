@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Геотехнический калькулятор</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .card { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); transition: 0.3s; }
+    .card:hover { transform: translateY(-2px); }
+    .btn-primary { background-color: #107f8c; }
+    .btn-primary:hover { background-color: #0d6c77; }
+    .hidden { display: none; }
+    .result-item { padding:12px; margin-bottom:8px; border-radius:6px; }
+    .performed { background:#dcfce7; border-left:4px solid #22c55e; }
+    .not-performed { background:#fee2e2; border-left:4px solid #ef4444; }
+    .error { color:#b91c1c; font-size:0.9em; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+  <div class="max-w-3xl mx-auto card bg-white p-6 rounded-lg">
+    <h1 class="text-2xl font-bold mb-4">Геотехнический калькулятор</h1>
+
+    <div id="step-1">
+      <label class="block mb-1 font-medium">1. Глубина котлована (H), м</label>
+      <input type="number" id="depth" class="w-full border p-2 rounded" placeholder="Например: 12" />
+      <p id="err-depth" class="error hidden">Введите корректное значение H ≥ 5.</p>
+      <button onclick="next1()" class="btn-primary mt-4 px-4 py-2 text-white rounded">Далее</button>
+    </div>
+
+    <div id="step-2" class="hidden">
+      <label class="block mb-1 font-medium">2. Геотехническая категория</label>
+      <select id="category" class="w-full border p-2 rounded">
+        <option value="">Выберите</option>
+        <option value="2">2 категория</option>
+        <option value="3">3 категория</option>
+      </select>
+      <p id="err-cat" class="error hidden">Выберите категорию.</p>
+      <div class="mt-4">
+        <button onclick="show('step-1')" class="px-4 py-2 border rounded mr-2">Назад</button>
+        <button onclick="next2()" class="btn-primary px-4 py-2 text-white rounded">Далее</button>
+      </div>
+    </div>
+
+    <div id="step-3a" class="hidden">
+      <label class="block mb-1 font-medium">3. Общая глубина раскопки, м</label>
+      <input type="number" id="totalDepth" class="w-full border p-2 rounded" placeholder="Только для H 10–15 м" />
+      <p id="err-total" class="error hidden">Введите число.</p>
+      <div class="mt-4">
+        <button onclick="show('step-2')" class="px-4 py-2 border rounded mr-2">Назад</button>
+        <button onclick="next3()" class="btn-primary px-4 py-2 text-white rounded">Далее</button>
+      </div>
+    </div>
+
+    <div id="step-3b" class="hidden">
+      <label class="block mb-1 font-medium">3. Глубина котлована > 20 м?</label>
+      <select id="over20" class="w-full border p-2 rounded">
+        <option value="">Выберите</option>
+        <option value="yes">Да</option>
+        <option value="no">Нет</option>
+      </select>
+      <p id="err-over20" class="error hidden">Выберите.</p>
+      <div class="mt-4">
+        <button onclick="show('step-1')" class="px-4 py-2 border rounded mr-2">Назад</button>
+        <button onclick="next3()" class="btn-primary px-4 py-2 text-white rounded">Далее</button>
+      </div>
+    </div>
+
+    <div id="step-4" class="hidden">
+      <label class="block mb-1 font-medium">4. Пучинистые грунты и зимние работы?</label>
+      <select id="frost" class="w-full border p-2 rounded">
+        <option value="">Выберите</option>
+        <option value="yes">Да</option>
+        <option value="no">Нет</option>
+      </select>
+      <p id="err-frost" class="error hidden">Выберите.</p>
+      <div class="mt-4">
+        <button onclick="goBackPrev()" class="px-4 py-2 border rounded mr-2">Назад</button>
+        <button onclick="calculate()" class="btn-primary px-4 py-2 text-white rounded">Рассчитать</button>
+      </div>
+    </div>
+
+    <div id="result" class="hidden mt-6">
+      <h2 class="text-xl font-semibold mb-2">Результат:</h2>
+      <div id="out"></div>
+      <button onclick="location.reload()" class="mt-4 px-4 py-2 border rounded">Начать заново</button>
+    </div>
+  </div>
+  <script>
+    const steps = ['step-1','step-2','step-3a','step-3b','step-4'];
+    let ctx = {};
+  
+    function show(id){
+      steps.forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById('result').classList.add('hidden');
+      ['err-depth','err-cat','err-total','err-over20','err-frost']
+        .forEach(e=>document.getElementById(e).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  
+    function next1(){
+      const h = parseFloat(document.getElementById('depth').value);
+      if (isNaN(h) || h < 5) {
+        return document.getElementById('err-depth').classList.remove('hidden');
+      }
+      ctx.H = h;
+      if (h < 15) {
+        show('step-2');
+      } else {
+        show('step-3b');
+      }
+    }
+  
+    function next2(){
+      const cat = document.getElementById('category').value;
+      if (!cat) {
+        return document.getElementById('err-cat').classList.remove('hidden');
+      }
+      ctx.category = parseInt(cat);
+      if (ctx.H >= 10) {
+        show('step-3a');
+      } else {
+        show('step-4');
+      }
+    }
+  
+    function next3(){
+      if (ctx.H >= 10 && ctx.H < 15) {
+        const td = parseFloat(document.getElementById('totalDepth').value);
+        if (isNaN(td)) {
+          return document.getElementById('err-total').classList.remove('hidden');
+        }
+        ctx.totalDepth = td;
+      } else {
+        const o20 = document.getElementById('over20').value;
+        if (!o20) {
+          return document.getElementById('err-over20').classList.remove('hidden');
+        }
+        ctx.over20 = (o20 === 'yes');
+      }
+      show('step-4');
+    }
+  
+    function goBackPrev(){
+      if (ctx.H >= 10 && ctx.H < 15) show('step-3a');
+      else show('step-3b');
+    }
+  
+    function calculate(){
+      const frostVal = document.getElementById('frost').value;
+      if (!frostVal) {
+        return document.getElementById('err-frost').classList.remove('hidden');
+      }
+      ctx.frost = (frostVal === 'yes');
+  
+      const p = {
+        hTop: 'Горизонтальные перемещения верха ограждающей конструкции',
+        hAll: 'Горизонтальные перемещения ограждающей конструкции по высоте',
+        stressSteel: 'Напряжение в стальных распорках',
+        stressAnchor: 'Напряжение в тягах анкерных устройств',
+        stressFence: 'Напряжение в арматуре и бетоне ограждающей конструкции',
+        stressOverlap: 'Напряжение в арматуре и бетоне перекрытий при разработке котлована под их защитой',
+        frostDepth: 'Температура и глубина промерзания грунтов за ограждающей конструкцией'
+      };
+      const res = { performed: [], notPerformed: [] };
+      const add = (param, ok) => res[ok ? 'performed' : 'notPerformed'].push(param);
+  
+      const { H, category: cat, frost } = ctx;
+  
+      if (H < 10) {
+        if (cat === 2) {
+          if (frost) {
+            add(p.hTop, true); add(p.frostDepth, true);
+            [p.hAll, p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+          } else {
+            add(p.hTop, true);
+            [p.hAll, p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap, p.frostDepth].forEach(x => add(x, false));
+          }
+        } else {
+          if (frost) {
+            [p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+            [p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true));
+          } else {
+            [p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+            [p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true)); // исправлено: frostDepth → performed
+          }
+        }
+  
+      } else if (H < 15) {
+        const over25 = ctx.totalDepth > 25;
+        if (cat === 2) {
+          if (over25 && frost) {
+            [p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+            [p.stressSteel, p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true));
+          } else if (over25) {
+            [p.stressAnchor, p.stressFence, p.stressOverlap, p.frostDepth].forEach(x => add(x, false));
+            [p.stressSteel, p.hTop, p.hAll].forEach(x => add(x, true));
+          } else if (frost) {
+            [p.stressAnchor, p.stressFence, p.stressOverlap, p.stressSteel].forEach(x => add(x, false));
+            [p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true));
+          } else {
+            [p.stressAnchor, p.stressFence, p.stressOverlap, p.stressSteel, p.frostDepth].forEach(x => add(x, false));
+            [p.hTop, p.hAll].forEach(x => add(x, true));
+          }
+        } else {
+          if (over25 && frost) {
+            [p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+            [p.stressAnchor, p.stressSteel, p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true));
+          } else if (over25) {
+            [p.stressFence, p.stressOverlap, p.frostDepth].forEach(x => add(x, false));
+            [p.stressAnchor, p.stressSteel, p.hTop, p.hAll].forEach(x => add(x, true));
+          } else if (frost) {
+            [p.stressFence, p.stressOverlap, p.stressSteel].forEach(x => add(x, false));
+            [p.stressAnchor, p.hTop, p.hAll, p.frostDepth].forEach(x => add(x, true));
+          } else {
+            [p.stressFence, p.stressOverlap, p.frostDepth, p.stressSteel].forEach(x => add(x, false));
+            [p.stressAnchor, p.hTop, p.hAll].forEach(x => add(x, true));
+          }
+        }
+  
+      } else {
+        const over20 = ctx.over20;
+        if (over20) {
+          if (frost) {
+            [p.hTop, p.hAll, p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap, p.frostDepth]
+              .forEach(x => add(x, true));
+          } else {
+            [p.hTop, p.hAll, p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, true));
+            add(p.frostDepth, false);
+          }
+        } else {
+          if (frost) {
+            [p.hTop, p.hAll, p.stressSteel, p.stressAnchor, p.frostDepth].forEach(x => add(x, true));
+            [p.stressFence, p.stressOverlap].forEach(x => add(x, false));
+          } else {
+            [p.hTop, p.hAll, p.stressSteel, p.stressAnchor].forEach(x => add(x, true));
+            [p.stressFence, p.stressOverlap, p.frostDepth].forEach(x => add(x, false));
+          }
+        }
+      }
+  
+      const out = document.getElementById('out');
+      out.innerHTML = '';
+      if (res.performed.length) {
+        out.innerHTML += `<h3 class="font-semibold">Выполняются:</h3>`;
+        res.performed.forEach(t =>
+          out.innerHTML += `<div class="result-item performed"><i class="fas fa-check-circle mr-2"></i>${t}</div>`
+        );
+      }
+      if (res.notPerformed.length) {
+        out.innerHTML += `<h3 class="mt-4 font-semibold">Не выполняются:</h3>`;
+        res.notPerformed.forEach(t =>
+          out.innerHTML += `<div class="result-item not-performed"><i class="fas fa-times-circle mr-2"></i>${t}</div>`
+        );
+      }
+  
+      show('result');
+    }
+  </script>
+  </body>
+  </html>
+  
