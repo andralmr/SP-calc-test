@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Геотехнический калькулятор L4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .card {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .option-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      background-color: #f0f9ff;
+    }
+    .option-card.selected {
+      background-color: #e0f2fe;
+      border-color: #107f8c;
+    }
+    .btn-primary {
+      background-color: #107f8c;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+    }
+    .btn-primary:hover {
+      background-color: #0d6c77;
+    }
+    .result-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+    }
+    .performed {
+      background-color: #dcfce7;
+      border-left: 4px solid #22c55e;
+    }
+    .not-performed {
+      background-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+    }
+    .progress-bar {
+      background-color: #107f8c;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl mx-auto">
+    <!-- Стартовая карточка -->
+    <div id="start-card" class="card bg-white rounded-xl p-6 md:p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Геотехнический калькулятор L4</h1>
+        <p class="text-gray-600">Этот калькулятор поможет определить контролируемые параметры согласно СП 22.13330.2016</p>
+      </div>
+      
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-info-circle text-blue-500"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-blue-700">
+              Вам будет предложено ответить на несколько вопросов о параметрах вашего строительного проекта. 
+              На основе ваших ответов система определит, какие параметры необходимо контролировать.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-center mt-8">
+        <button onclick="startSurvey()" class="px-6 py-3 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+          Начать опрос <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Опрос -->
+    <div id="survey-container" class="hidden">
+      <div id="app" class="card bg-white rounded-xl p-6 md:p-8">
+        <!-- Прогресс бар -->
+        <div class="mb-6">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div id="progress-bar" class="progress-bar h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="text-right mt-1 text-sm text-gray-500">
+            <span id="current-step">1</span>/<span id="total-steps">3</span>
+          </div>
+        </div>
+
+        <!-- Контент опроса -->
+        <div id="survey-content" class="min-h-64">
+          <!-- Вопрос 1: Глубина котлована -->
+          <div id="question-1" class="question">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Глубина котлована (м)</h2>
+            <div class="mb-6">
+              <label for="depth" class="block text-sm font-medium text-gray-700 mb-2">Введите глубину котлована:</label>
+              <div class="relative">
+                <input type="number" id="depth" min="1" step="0.1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Например: 5.5">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span class="text-gray-500">м</span>
+                </div>
+              </div>
+              <p id="depth-error" class="mt-2 text-sm text-red-600 hidden">Пожалуйста, введите число больше 1</p>
+            </div>
+            <div class="flex justify-end">
+              <button onclick="handleQuestion1()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Далее <i class="fas fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Вопрос 2: Геотехническая категория -->
+          <div id="question-2" class="question hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Геотехническая категория</h2>
+            <div class="grid gap-4 mb-6">
+              <div id="option-2" onclick="selectOption(2)" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="category-2" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="category-2" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    2 категория
+                  </label>
+                </div>
+              </div>
+              <div id="option-3" onclick="selectOption(3)" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="category-3" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="category-3" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    3 категория
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p id="category-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите категорию</p>
+            <div class="flex justify-between">
+              <button onclick="backToQuestion1()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Назад
+              </button>
+              <button onclick="handleQuestion2()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Далее <i class="fas fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
+
+          
+<!-- Вопрос 3: Уровень подземных вод -->
+<div id="question-3" class="question hidden">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">3. Уровень подземных вод</h2>
+  <div class="grid gap-4 mb-6">
+    <div id="option-above" onclick="selectWaterLevel('above')" class="option-card p-4 border rounded-lg">
+      <div class="flex items-center">
+        <input id="water-above" name="water" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+        <label for="water-above" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">Выше дна котлована</label>
+      </div>
+    </div>
+    <div id="option-below" onclick="selectWaterLevel('below')" class="option-card p-4 border rounded-lg">
+      <div class="flex items-center">
+        <input id="water-below" name="water" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+        <label for="water-below" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">Ниже дна котлована</label>
+      </div>
+    </div>
+  </div>
+  <p id="water-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите уровень воды</p>
+  <div class="flex justify-between">
+    <button onclick="backToPreviousQuestion()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+      <i class="fas fa-arrow-left mr-2"></i> Назад
+    </button>
+    <button onclick="handleQuestion3()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+      Рассчитать <i class="fas fa-calculator ml-2"></i>
+    </button>
+  </div>
+</div>
+<!-- Результат -->
+
+          <div id="result" class="hidden">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-blue-500"></i>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-blue-700">
+                    Результаты определения контролируемых параметров:
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div id="result-content" class="mb-8">
+              <h3 class="font-semibold mb-2">Выполняются:</h3>
+              <div id="performed-items"></div>
+              <h3 class="mt-4 font-semibold mb-2">Не выполняются:</h3>
+              <div id="not-performed-items"></div>
+            </div>
+            <div class="flex justify-between">
+              <button onclick="restartSurvey()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                <i class="fas fa-redo mr-2"></i> Пройти заново
+              </button>
+              <button onclick="downloadResult()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                <i class="fas fa-download mr-2"></i> Скачать
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {};
+    const params = [
+      "Дополнительные осадки обечаек люков, колодцев и других конструкций, выступающих на поверхность",
+      "Дополнительные осадки конструкций обделок проходных и полупроходных коллекторов",
+      "Горизонтальные перемещения обечаек люков, колодцев и других конструкций, выступающих на поверхность",
+      "Деформации конструкций обделок проходных и полупроходных коллекторов, в т. ч. трещин в их обделке",
+      "Горизонтальные перемещения конструкций обделок проходных и полупроходных коллекторов",
+      "Измерение динамических воздействий"
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('depth').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleQuestion1();
+      });
+    });
+
+    function updateProgress(current, total) {
+      const progressBar = document.getElementById('progress-bar');
+      const percentage = (current / total) * 100;
+      progressBar.style.width = percentage + '%';
+      document.getElementById('current-step').textContent = current;
+      document.getElementById('total-steps').textContent = total;
+    }
+
+    function startSurvey() {
+      document.getElementById('start-card').classList.add('hidden');
+      document.getElementById('survey-container').classList.remove('hidden');
+      updateProgress(1, 3);
+    }
+
+    function handleQuestion1() {
+      const depthInput = document.getElementById('depth');
+      const depthError = document.getElementById('depth-error');
+      const depth = parseFloat(depthInput.value);
+
+      if (isNaN(depth) || depth < 1) {
+        depthError.classList.remove('hidden');
+        depthInput.focus();
+        return;
+      }
+
+      depthError.classList.add('hidden');
+      state.depth = depth;
+
+      if (state.depth >= 10) {
+        document.getElementById('question-1').classList.add('hidden');
+        document.getElementById('question-3').classList.remove('hidden');
+        updateProgress(2, 3);
+      } else {
+        document.getElementById('question-1').classList.add('hidden');
+        document.getElementById('question-2').classList.remove('hidden');
+        updateProgress(2, 3);
+      }
+    }
+
+    function handleQuestion2() {
+      const category2 = document.getElementById('category-2');
+      const category3 = document.getElementById('category-3');
+      const categoryError = document.getElementById('category-error');
+
+      if (!category2.checked && !category3.checked) {
+        categoryError.classList.remove('hidden');
+        return;
+      }
+
+      categoryError.classList.add('hidden');
+      state.category = category2.checked ? "2" : "3";
+
+      document.getElementById('question-2').classList.add('hidden');
+      document.getElementById('question-3').classList.remove('hidden');
+      updateProgress(3, 3);
+    }
+
+    function handleQuestion3() {
+      const specialYes = document.getElementById('special-yes');
+      const specialNo = document.getElementById('special-no');
+      const specialError = document.getElementById('special-error');
+
+      if (!specialYes.checked && !specialNo.checked) {
+        specialError.classList.remove('hidden');
+        return;
+      }
+
+      specialError.classList.add('hidden');
+      state.specialTask = specialYes.checked;
+      calculate();
+    }
+
+    function calculate() {
+      const r = { performed: [], notPerformed: [] };
+      const H = state.depth;
+      const cat = state.category;
+      const spec = state.specialTask;
+
+      if (H < 10) {
+        if (cat === "2") {
+          r.performed.push(params[0]);
+          if (spec) {
+            r.performed.push(params[5]);
+            r.notPerformed.push(params[1], params[2], params[3], params[4]);
+          } else {
+            r.notPerformed.push(params[1], params[2], params[3], params[4], params[5]);
+          }
+        } else if (cat === "3") {
+          r.performed.push(params[0], params[1]);
+          if (spec) {
+            r.performed.push(params[3], params[5]);
+            r.notPerformed.push(params[2], params[4]);
+          } else {
+            r.notPerformed.push(params[2], params[3], params[4], params[5]);
+          }
+        }
+      } else {
+        if (spec) {
+          params.forEach(p => r.performed.push(p));
+        } else {
+          params.slice(0, 5).forEach(p => r.performed.push(p));
+          r.notPerformed.push(params[5]);
+        }
+      }
+
+      document.querySelectorAll('.question').forEach(q => q.classList.add('hidden'));
+      const performedItems = document.getElementById('performed-items');
+      const notPerformedItems = document.getElementById('not-performed-items');
+      
+      performedItems.innerHTML = '';
+      notPerformedItems.innerHTML = '';
+
+      r.performed.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'result-item performed';
+        div.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i>${p}`;
+        performedItems.appendChild(div);
+      });
+
+      r.notPerformed.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'result-item not-performed';
+        div.innerHTML = `<i class="fas fa-times-circle mr-2 text-red-500"></i>${p}`;
+        notPerformedItems.appendChild(div);
+      });
+
+      document.getElementById('result').classList.remove('hidden');
+      updateProgress(3, 3);
+    }
+
+    
+function handleQuestion3() {
+  const waterAbove = document.getElementById('water-above');
+  const waterBelow = document.getElementById('water-below');
+  const waterError = document.getElementById('water-error');
+
+  if (!waterAbove.checked && !waterBelow.checked) {
+    waterError.classList.remove('hidden');
+    return;
+  }
+
+  waterError.classList.add('hidden');
+  state.waterLevel = waterAbove.checked ? 'выше' : 'ниже';
+
+  calculate();
+}
+
+
+// Функция для возврата на первый вопрос из Вопроса 2
+    function backToQuestion1() {
+      document.getElementById('question-2').classList.add('hidden');
+      document.getElementById('question-1').classList.remove('hidden');
+      updateProgress(1, 3);
+    }
+
+    // Функция для возврата на предыдущий шаг из Вопроса 3
+    function backToPreviousQuestion() {
+      if (state.depth >= 10) {
+        document.getElementById('question-3').classList.add('hidden');
+        document.getElementById('question-1').classList.remove('hidden');
+        updateProgress(1, 3);
+      } else {
+        document.getElementById('question-3').classList.add('hidden');
+        document.getElementById('question-2').classList.remove('hidden');
+        updateProgress(2, 3);
+      }
+    }
+
+    function selectOption(option) {
+      document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+      document.getElementById(`option-${option}`).classList.add('selected');
+      document.getElementById(`category-${option}`).checked = true;
+      document.getElementById('category-error').classList.add('hidden');
+    }
+
+    function selectWaterLevel(option) {
+  document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+  document.getElementById(`option-${option}`).classList.add('selected');
+  document.getElementById(`water-${option}`).checked = true;
+  document.getElementById('water-error').classList.add('hidden');
+}
+
+function selectSpecialOption(option) {
+      document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+      document.getElementById(`option-${option}`).classList.add('selected');
+      document.getElementById(`special-${option}`).checked = true;
+      document.getElementById('special-error').classList.add('hidden');
+    }
+
+    function restartSurvey() {
+      // Сброс состояния опроса
+      state.depth = undefined;
+      state.category = undefined;
+      state.specialTask = undefined;
+
+      // Сброс значений полей ввода и радиокнопок
+      document.getElementById('depth').value = "";
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.checked = false;
+      });
+      document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+
+      // Скрытие ошибок, если они отображались
+      document.getElementById('depth-error').classList.add('hidden');
+      document.getElementById('category-error').classList.add('hidden');
+      document.getElementById('special-error').classList.add('hidden');
+
+      // Скрытие результата и возврат к первому вопросу
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('question-1').classList.remove('hidden');
+      updateProgress(1, 3);
+    }
+
+    function downloadResult() {
+      const performedItems = Array.from(document.querySelectorAll('#performed-items .result-item'))
+        .map(item => item.textContent.trim()).join("\n");
+      const notPerformedItems = Array.from(document.querySelectorAll('#not-performed-items .result-item'))
+        .map(item => item.textContent.trim()).join("\n");
+      const resultText = `Выполняются:\n${performedItems}\n\nНе выполняются:\n${notPerformedItems}`;
+
+      const blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'результаты.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
