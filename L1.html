@@ -1,454 +1,463 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор для новой застройки - Geofundament</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .card {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .option-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .option-card:hover {
-            transform: translateY(-2px);
-            background-color: #f0f9ff;
-        }
-        .option-card.selected {
-            background-color: #e0f2fe;
-            border-color: #107f8c;
-        }
-        .btn-primary {
-            background-color: #107f8c;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-        }
-        .btn-primary:hover {
-            background-color: #0d6c77;
-        }
-        .result-item {
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-        }
-        .performed {
-            background-color: #dcfce7;
-            border-left: 4px solid #22c55e;
-        }
-        .progress-bar {
-            background-color: #107f8c;
-        }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .question {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .question.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор для новой застройки - Geofundament</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .card {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .option-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      background-color: #f0f9ff;
+    }
+    .option-card.selected {
+      background-color: #e0f2fe;
+      border-color: #107f8c;
+    }
+    .btn-primary {
+      background-color: #107f8c;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+    }
+    .btn-primary:hover {
+      background-color: #0d6c77;
+    }
+    .result-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+    }
+    .performed {
+      background-color: #dcfce7;
+      border-left: 4px solid #22c55e;
+    }
+    .progress-bar {
+      background-color: #107f8c;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .question {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .question.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-2xl mx-auto">
+  <div class="w-full max-w-2xl mx-auto">
+    <!-- Стартовая страница -->
+    <div id="start-card" class="card bg-white rounded-xl p-6 md:p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Геотехнический калькулятор</h1>
+        <p class="text-gray-600">Этот калькулятор поможет определить контролируемые параметры согласно СП 22.13330</p>
+      </div>
 
-        <!-- Стартовая страница -->
-        <div id="start-card" class="card bg-white rounded-xl p-6 md:p-8">
-            <div class="text-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Геотехнический калькулятор</h1>
-                <p class="text-gray-600">Этот калькулятор поможет определить контролируемые параметры согласно СП 22.13330</p>
-            </div>
-
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-blue-500"></i>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-blue-700">
-                            Заполните информацию о параметрах вашего строительного проекта, чтобы система рассчитала необходимые работы.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-center mt-8">
-                <button onclick="startSurvey()" class="px-6 py-3 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                    Начать опрос <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-            </div>
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-info-circle text-blue-500"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-blue-700">
+              Заполните информацию о параметрах вашего строительного проекта, чтобы система рассчитала необходимые работы.
+            </p>
+          </div>
         </div>
+      </div>
 
-        <!-- Контейнер опроса -->
-        <div id="survey-container" class="hidden">
-            <div id="app" class="card bg-white rounded-xl p-6 md:p-8">
-                
-                <!-- Прогресс-бар -->
-                <div class="mb-6">
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div id="progressBar" class="progress-bar h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <div class="text-right mt-1 text-sm text-gray-500">
-                        <span id="current-step">1</span>/<span id="total-steps">3</span>
-                    </div>
-                </div>
-
-                <!-- Контент опроса -->
-                <div class="min-h-64">
-                    <!-- Вопрос 1: Высота здания -->
-                    <div id="question1" class="question active">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Высота здания (м)</h2>
-                        <div class="mb-6">
-                            <label for="buildingHeight" class="block text-sm font-medium text-gray-700 mb-2">Введите высоту здания:</label>
-                            <div class="relative">
-                                <input type="number" id="buildingHeight" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Например: 50">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <span class="text-gray-500">м</span>
-                                </div>
-                            </div>
-                            <p id="height-error" class="mt-2 text-sm text-red-600 hidden">Пожалуйста, введите число больше 1</p>
-                        </div>
-                        <div class="flex justify-end">
-                            <button onclick="showNextQuestion()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                                Далее <i class="fas fa-arrow-right ml-2"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Вопрос 2: Геотехническая категория -->
-                    <div id="question2" class="question hidden">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Геотехническая категория</h2>
-                        <div class="grid gap-4 mb-6">
-                            <div id="option-2" onclick="selectOption(2)" class="option-card p-4 border rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="flex items-center h-5">
-                                        <input id="category-2" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    </div>
-                                    <label for="category-2" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
-                                        2 категория
-                                    </label>
-                                </div>
-                            </div>
-                            <div id="option-3" onclick="selectOption(3)" class="option-card p-4 border rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="flex items-center h-5">
-                                        <input id="category-3" name="category" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    </div>
-                                    <label for="category-3" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
-                                        3 категория
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <p id="category-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите категорию</p>
-                        <div class="flex justify-between">
-                            <button onclick="showPreviousQuestion()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
-                                <i class="fas fa-arrow-left mr-2"></i> Назад
-                            </button>
-                            <button onclick="submitSurvey()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                                Отправить <i class="fas fa-check ml-2"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Вопрос 3: Тип фундамента -->
-                    <div id="question3" class="question hidden">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">3. Тип фундамента</h2>
-                        <div class="grid gap-4 mb-6">
-                            <div id="option-plate" onclick="selectFoundationOption('plate')" class="option-card p-4 border rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="flex items-center h-5">
-                                        <input id="foundation-plate" name="foundation" type="radio" value="Плитный или плитно-свайный" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    </div>
-                                    <label for="foundation-plate" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
-                                        Плитный или плитно-свайный
-                                    </label>
-                                </div>
-                            </div>
-                            <div id="option-other" onclick="selectFoundationOption('other')" class="option-card p-4 border rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="flex items-center h-5">
-                                        <input id="foundation-other" name="foundation" type="radio" value="Другой" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    </div>
-                                    <label for="foundation-other" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
-                                        Другой
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <p id="foundation-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите тип фундамента</p>
-                        <div class="flex justify-between">
-                            <button onclick="showPreviousQuestion()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
-                                <i class="fas fa-arrow-left mr-2"></i> Назад
-                            </button>
-                            <button onclick="submitFoundation()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                                Отправить <i class="fas fa-check ml-2"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Результат -->
-                    <div id="resultContainer" class="question hidden">
-                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-info-circle text-blue-500"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700">
-                                        Рекомендуемые работы согласно СП 22.13330 "СНиП 2.02.01-83* Основания зданий и сооружений", Приложение Л, Таблица Л1:
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="result" class="mb-8"></div>
-                        <div class="flex justify-start">
-                            <button onclick="restartSurvey()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
-                                <i class="fas fa-redo mr-2"></i> Пройти заново
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+      <div class="flex justify-center mt-8">
+        <button onclick="startSurvey()" class="px-6 py-3 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+          Начать опрос <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
     </div>
 
-    <script>
-        // Массив с работами, которые предстоит сделать
-        const works = [
-            "Осадки фундаментов и относительная разность осадок",
-            "Крен",
-            "Напряжения под подошвой фундаментов",
-            "Послойные осадки грунтов основания",
-            "Напряжения в основании под пятой свай и в стволе свай",
-            "Напряжения в конструкциях подземной части (фундаменты, колонны, перекрытия)"
-        ];
+    <!-- Контейнер опроса -->
+    <div id="survey-container" class="hidden">
+      <div id="app" class="card bg-white rounded-xl p-6 md:p-8">
+        <!-- Прогресс-бар -->
+        <div class="mb-6">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div id="progressBar" class="progress-bar h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="text-right mt-1 text-sm text-gray-500">
+            <span id="current-step">1</span>/<span id="total-steps">3</span>
+          </div>
+        </div>
 
-        // Инициализация переменных для хранения ответов
-        let buildingHeight = 0;
-        let selectedCategory = '';
-        let selectedFoundation = '';
-        let currentQuestion = 1;
-        const totalQuestions = 3;
+        <!-- Контент опроса -->
+        <div class="min-h-64">
+          <!-- Вопрос 1: Высота здания -->
+          <div id="question1" class="question active">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Высота здания (м)</h2>
+            <div class="mb-6">
+              <label for="buildingHeight" class="block text-sm font-medium text-gray-700 mb-2">Введите высоту здания:</label>
+              <div class="relative">
+                <input type="number" id="buildingHeight" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Например: 50">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span class="text-gray-500">м</span>
+                </div>
+              </div>
+              <p id="height-error" class="mt-2 text-sm text-red-600 hidden">Пожалуйста, введите число больше 0</p>
+            </div>
+            <div class="flex justify-end">
+              <button onclick="showNextQuestion()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Далее <i class="fas fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
 
-        // Обновление прогресс-бара
-        function updateProgress() {
-            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            document.getElementById('current-step').textContent = currentQuestion;
-            document.getElementById('total-steps').textContent = totalQuestions;
-        }
+          <!-- Вопрос 2: Геотехническая категория (при высоте ≤ 75 м) -->
+          <div id="question2" class="question hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Геотехническая категория</h2>
+            <div class="grid gap-4 mb-6">
+              <div id="option-2" onclick="selectOption(2)" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="category-2" name="category" type="radio" value="2" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="category-2" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    2 категория
+                  </label>
+                </div>
+              </div>
+              <div id="option-3" onclick="selectOption(3)" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="category-3" name="category" type="radio" value="3" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="category-3" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    3 категория
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p id="category-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите категорию</p>
+            <div class="flex justify-between">
+              <button onclick="showPreviousQuestion()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Назад
+              </button>
+              <button onclick="submitSurvey()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Отправить <i class="fas fa-check ml-2"></i>
+              </button>
+            </div>
+          </div>
 
-        // Запуск опроса: скрытие стартовой страницы и показ опроса
-        function startSurvey() {
-            document.getElementById("start-card").classList.add("hidden");
-            document.getElementById("survey-container").classList.remove("hidden");
-            updateProgress();
-        }
+          <!-- Вопрос 3: Тип фундамента (при высоте > 75 м) -->
+          <div id="question3" class="question hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">3. Тип фундамента</h2>
+            <div class="grid gap-4 mb-6">
+              <div id="option-plate" onclick="selectFoundationOption('plate')" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="foundation-plate" name="foundation" type="radio" value="Плитный или плитно-свайный" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="foundation-plate" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    Плитный или плитно-свайный
+                  </label>
+                </div>
+              </div>
+              <div id="option-other" onclick="selectFoundationOption('other')" class="option-card p-4 border rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex items-center h-5">
+                    <input id="foundation-other" name="foundation" type="radio" value="Другой" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  </div>
+                  <label for="foundation-other" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+                    Другой
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p id="foundation-error" class="mt-2 mb-4 text-sm text-red-600 hidden">Пожалуйста, выберите тип фундамента</p>
+            <div class="flex justify-between">
+              <button onclick="showPreviousQuestion()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Назад
+              </button>
+              <button onclick="submitFoundation()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Отправить <i class="fas fa-check ml-2"></i>
+              </button>
+            </div>
+          </div>
 
-        // Показать следующий вопрос
-        function showNextQuestion() {
-            // Получение высоты здания
-            buildingHeight = parseInt(document.getElementById('buildingHeight').value, 10);
+          <!-- Результат -->
+          <div id="resultContainer" class="question hidden">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-blue-500"></i>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-blue-700">
+                    Рекомендуемые работы согласно СП 22.13330 "СНиП 2.02.01-83* Основания зданий и сооружений", Приложение Л, Таблица Л1:
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div id="result" class="mb-8"></div>
+            <!-- Кнопка загрузки выбранного документа появится здесь -->
+            <div id="downloadContainer"></div>
+            <div class="flex justify-start">
+              <button onclick="restartSurvey()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                <i class="fas fa-redo mr-2"></i> Пройти заново
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
 
-            // Проверка, что введена валидная высота
-            if (isNaN(buildingHeight) || buildingHeight <= 0) {
-                document.getElementById('height-error').classList.remove('hidden');
-                return;
-            }
-            document.getElementById('height-error').classList.add('hidden');
+  </div>
 
-            // Определяем следующий вопрос на основе высоты
-            let nextQuestionId;
-            if (buildingHeight <= 75) {
-                nextQuestionId = "question2";
-            } else {
-                nextQuestionId = "question3";
-            }
+  <script>
+    // Массив с работами
+    const works = [
+      "Осадки фундаментов и относительная разность осадок",
+      "Крен",
+      "Напряжения под подошвой фундаментов",
+      "Послойные осадки грунтов основания",
+      "Напряжения в основании под пятой свай и в стволе свай",
+      "Напряжения в конструкциях подземной части (фундаменты, колонны, перекрытия)"
+    ];
 
-            // Скрываем текущий вопрос
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            document.getElementById(`question${currentQuestion}`).classList.add('hidden');
+    // Глобальные переменные для хранения ответов
+    let buildingHeight = 0;
+    let selectedCategory = '';
+    let selectedFoundation = '';
+    let currentQuestion = 1;
+    const totalQuestions = 3;
+    // Переменная для хранения названия документа
+    let resultDoc = '';
+
+    // Функция обновления прогресс-бара
+    function updateProgress() {
+      const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+      document.getElementById('current-step').textContent = currentQuestion;
+      document.getElementById('total-steps').textContent = totalQuestions;
+    }
+
+    // Функция запуска опроса
+    function startSurvey() {
+      document.getElementById("start-card").classList.add("hidden");
+      document.getElementById("survey-container").classList.remove("hidden");
+      updateProgress();
+    }
+
+    // Переход к следующему вопросу
+    function showNextQuestion() {
+      buildingHeight = parseInt(document.getElementById('buildingHeight').value, 10);
+      if (isNaN(buildingHeight) || buildingHeight <= 0) {
+        document.getElementById('height-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('height-error').classList.add('hidden');
+      
+      // Если высота ≤ 75 м – показываем вопрос 2
+      // Если > 75 м – вопрос 3 (выбор типа фундамента)
+      let nextQuestionId = (buildingHeight <= 75) ? "question2" : "question3";
+      
+      document.getElementById(`question${currentQuestion}`).classList.remove('active');
+      document.getElementById(`question${currentQuestion}`).classList.add('hidden');
+      document.getElementById(nextQuestionId).classList.remove('hidden');
+      document.getElementById(nextQuestionId).classList.add('active');
             
-            // Показываем следующий вопрос
-            document.getElementById(nextQuestionId).classList.remove('hidden');
-            document.getElementById(nextQuestionId).classList.add('active');
-            
-            // Обновляем текущий вопрос
-            currentQuestion = parseInt(nextQuestionId.replace('question', ''));
-            
-            // Обновляем прогресс-бар
-            updateProgress();
+      currentQuestion = parseInt(nextQuestionId.replace('question',''));
+      updateProgress();
+    }
+
+    // Переход назад к первому вопросу
+    function showPreviousQuestion() {
+      document.getElementById(`question${currentQuestion}`).classList.remove('active');
+      document.getElementById(`question${currentQuestion}`).classList.add('hidden');
+      document.getElementById('question1').classList.remove('hidden');
+      document.getElementById('question1').classList.add('active');
+      currentQuestion = 1;
+      updateProgress();
+    }
+
+    // Выбор геотехнической категории (для высоты ≤ 75 м)
+    function selectOption(option) {
+      document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+      document.getElementById(`option-${option}`).classList.add('selected');
+      document.getElementById(`category-${option}`).checked = true;
+      document.getElementById('category-error').classList.add('hidden');
+    }
+
+    // Выбор типа фундамента (для высоты > 75 м)
+    function selectFoundationOption(option) {
+      document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+      document.getElementById(`option-${option}`).classList.add('selected');
+      document.getElementById(`foundation-${option}`).checked = true;
+      document.getElementById('foundation-error').classList.add('hidden');
+    }
+
+    // Обработка отправки формы для геотехнической категории
+    function submitSurvey() {
+      const selectedRadio = document.querySelector('input[name="category"]:checked');
+      if (!selectedRadio) {
+        document.getElementById('category-error').classList.remove('hidden');
+        return;
+      }
+      selectedCategory = selectedRadio.value;
+      // Назначаем имя документа в зависимости от категории
+      resultDoc = (selectedCategory === '2') 
+        ? "Категория_2_final.pdf" 
+        : "Категория_3_final.pdf";
+
+      let resultText = `<h3 class="font-semibold mb-2">Выполняются:</h3><div id="performed-items">`;
+      if (selectedCategory === '3') {
+        resultText += `
+          <div class="result-item performed">
+            <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[0]}
+          </div>
+          <div class="result-item performed">
+            <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[1]}
+          </div>`;
+      } else if (selectedCategory === '2') {
+        resultText += `
+          <div class="result-item performed">
+            <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[0]}
+          </div>`;
+      }
+      resultText += `</div>`;
+      showResult(resultText);
+    }
+
+    // Обработка отправки формы для типа фундамента
+    // Обработка отправки формы для типа фундамента
+    function submitFoundation() {
+      const selectedRadio = document.querySelector('input[name="foundation"]:checked');
+      if (!selectedRadio) {
+        document.getElementById('foundation-error').classList.remove('hidden');
+        return;
+      }
+      selectedFoundation = selectedRadio.value;
+      
+      let resultText = `<h3 class="font-semibold mb-2">Выполняются:</h3><div id="performed-items">`;
+      
+      // Определяем название документа в зависимости от высоты и выбора фундамента
+      if (buildingHeight > 150) {
+        if (selectedFoundation === 'Плитный или плитно-свайный') {
+          resultDoc = "150+_Плитный_final.pdf";
+          works.forEach(work => {
+            resultText += `
+              <div class="result-item performed">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>${work}
+              </div>`;
+          });
+        } else {
+          resultDoc = "150+_Другой_final.pdf";
+          [0, 1, 3, 4, 5].forEach(i => {
+            resultText += `
+              <div class="result-item performed">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
+              </div>`;
+          });
         }
-
-        // Показать предыдущий вопрос
-        function showPreviousQuestion() {
-            // Скрываем текущий вопрос
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            document.getElementById(`question${currentQuestion}`).classList.add('hidden');
-
-            // Показываем предыдущий вопрос (возвращаемся к вопросу 1)
-            document.getElementById('question1').classList.remove('hidden');
-            document.getElementById('question1').classList.add('active');
-            
-            currentQuestion = 1;
-            updateProgress();
+      } else if (buildingHeight > 100) {
+        if (selectedFoundation === 'Плитный или плитно-свайный') {
+          resultDoc = "100-150м_Плитный_final.pdf";
+          [0, 1, 2, 3, 4].forEach(i => {
+            resultText += `
+              <div class="result-item performed">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
+              </div>`;
+          });
+        } else {
+          resultDoc = "100-150м_Другой_final.pdf";
+          [0, 1, 4].forEach(i => {
+            resultText += `
+              <div class="result-item performed">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
+              </div>`;
+          });
         }
-
-        // Выбор геотехнической категории
-        function selectOption(option) {
-            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
-            document.getElementById(`option-${option}`).classList.add('selected');
-            document.getElementById(`category-${option}`).checked = true;
-            document.getElementById('category-error').classList.add('hidden');
+      } else if (buildingHeight > 75) {
+        if (selectedFoundation === 'Плитный или плитно-свайный') {
+          resultDoc = "75-100м_Плитный_final.pdf";
+        } else {
+          resultDoc = "75-100м_Другой_final.pdf";
         }
-
-        // Выбор типа фундамента
-        function selectFoundationOption(option) {
-            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
-            document.getElementById(`option-${option}`).classList.add('selected');
-            document.getElementById(`foundation-${option}`).checked = true;
-            document.getElementById('foundation-error').classList.add('hidden');
-        }
-
-        // Обработка отправки формы для геотехнической категории
-        function submitSurvey() {
-            const selectedRadio = document.querySelector('input[name="category"]:checked');
-            if (!selectedRadio) {
-                document.getElementById('category-error').classList.remove('hidden');
-                return;
-            }
-            selectedCategory = selectedRadio.value;
-
-            let resultText = `<h3 class="font-semibold mb-2">Выполняются:</h3><div id="performed-items">`;
-            if (selectedCategory === '3') {
-                resultText += `
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[0]}
-                    </div>
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[1]}
-                    </div>`;
-            } else if (selectedCategory === '2') {
-                resultText += `
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[0]}
-                    </div>`;
-            }
-            resultText += `</div>`;
-            showResult(resultText);
-        }
-
-        // Обработка отправки формы для типа фундамента
-        function submitFoundation() {
-            const selectedRadio = document.querySelector('input[name="foundation"]:checked');
-            if (!selectedRadio) {
-                document.getElementById('foundation-error').classList.remove('hidden');
-                return;
-            }
-            selectedFoundation = selectedRadio.value;
-
-            let resultText = `<h3 class="font-semibold mb-2">Выполняются:</h3><div id="performed-items">`;
-            if (buildingHeight > 150 && selectedFoundation === 'Плитный или плитно-свайный') {
-                works.forEach(work => {
-                    resultText += `
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${work}
-                    </div>`;
-                });
-            } else if (buildingHeight > 150 && selectedFoundation === 'Другой') {
-                [0, 1, 3, 4, 5].forEach(i => {
-                    resultText += `
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
-                    </div>`;
-                });
-            } else if (buildingHeight > 100) {
-                if (selectedFoundation === 'Плитный или плитно-свайный') {
-                    [0, 1, 2, 3, 4].forEach(i => {
-                        resultText += `
-                        <div class="result-item performed">
-                            <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
-                        </div>`;
-                    });
-                } else if (selectedFoundation === 'Другой') {
-                    [0, 1, 4].forEach(i => {
-                        resultText += `
-                        <div class="result-item performed">
-                            <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
-                        </div>`;
-                    });
-                }
-            } else {
-                [0, 1].forEach(i => {
-                    resultText += `
-                    <div class="result-item performed">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
-                    </div>`;
-                });
-            }
-            resultText += `</div>`;
-            showResult(resultText);
-        }
-
-        // Показ результата
-        function showResult(resultHtml) {
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            document.getElementById(`question${currentQuestion}`).classList.add('hidden');
-            document.getElementById('result').innerHTML = resultHtml;
-            document.getElementById('resultContainer').classList.remove('hidden');
-            document.getElementById('resultContainer').classList.add('active');
-            document.getElementById('progressBar').style.width = '100%';
-            document.getElementById('current-step').textContent = totalQuestions;
-        }
-
-        // Сброс и перезапуск опроса
-        function restartSurvey() {
-            document.getElementById('buildingHeight').value = '';
-            document.querySelectorAll('input[type="radio"]').forEach(radio => {
-                radio.checked = false;
-            });
-            document.querySelectorAll('.option-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.getElementById('height-error').classList.add('hidden');
-            document.getElementById('category-error').classList.add('hidden');
-            document.getElementById('foundation-error').classList.add('hidden');
-            document.getElementById('resultContainer').classList.remove('active');
-            document.getElementById('resultContainer').classList.add('hidden');
-            document.getElementById('question1').classList.remove('hidden');
-            document.getElementById('question1').classList.add('active');
-            currentQuestion = 1;
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('current-step').textContent = '1';
-        }
-
-        updateProgress();
-
-        // Обработка нажатия Enter в поле ввода высоты
-        document.getElementById('buildingHeight').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                showNextQuestion();
-            }
+        [0, 1].forEach(i => {
+          resultText += `
+            <div class="result-item performed">
+              <i class="fas fa-check-circle mr-2 text-green-500"></i>${works[i]}
+            </div>`;
         });
-    </script>
+      }
+      resultText += `</div>`;
+      showResult(resultText);
+    }
+
+    // Функция показа результата и кнопки загрузки
+    function showResult(resultHtml) {
+      document.getElementById(`question${currentQuestion}`).classList.remove('active');
+      document.getElementById(`question${currentQuestion}`).classList.add('hidden');
+      document.getElementById('result').innerHTML = resultHtml;
+      
+      // Формируем кнопку для скачивания
+      const downloadBtn = `
+        <a href="L1_docs/${resultDoc}" download class="mt-4 inline-flex items-center px-4 py-2 bg-green-500 text-white font-medium rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <i class="fas fa-download mr-2"></i> Скачать документ
+        </a>`;
+        
+      document.getElementById('downloadContainer').innerHTML = downloadBtn;
+      
+      document.getElementById('resultContainer').classList.remove('hidden');
+      document.getElementById('resultContainer').classList.add('active');
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('current-step').textContent = totalQuestions;
+    }
+
+    // Функция перезапуска опроса
+    function restartSurvey() {
+      document.getElementById('buildingHeight').value = '';
+      document.querySelectorAll('input[type="radio"]').forEach(radio => { radio.checked = false; });
+      document.querySelectorAll('.option-card').forEach(card => { card.classList.remove('selected'); });
+      document.getElementById('height-error').classList.add('hidden');
+      document.getElementById('category-error').classList.add('hidden');
+      document.getElementById('foundation-error').classList.add('hidden');
+      document.getElementById('resultContainer').classList.remove('active');
+      document.getElementById('resultContainer').classList.add('hidden');
+      document.getElementById('downloadContainer').innerHTML = "";
+      document.getElementById('question1').classList.remove('hidden');
+      document.getElementById('question1').classList.add('active');
+      currentQuestion = 1;
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('current-step').textContent = '1';
+    }
+
+    updateProgress();
+
+    // Запуск обработки нажатия Enter для поля ввода высоты
+    document.getElementById('buildingHeight').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        showNextQuestion();
+      }
+    });
+  </script>
 </body>
 </html>
