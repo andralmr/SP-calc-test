@@ -57,6 +57,17 @@
       -webkit-appearance: none;
       margin: 0;
     }
+    .question {
+      display: none;
+    }
+    .question.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -105,7 +116,7 @@
         <!-- Контент опроса -->
         <div id="survey-content" class="min-h-64">
           <!-- Вопрос 1: Глубина котлована -->
-          <div id="question-1" class="question">
+          <div id="question-1" class="question active">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Глубина котлована (м)</h2>
             <div class="mb-6">
               <label for="depth" class="block text-sm font-medium text-gray-700 mb-2">Введите глубину котлована:</label>
@@ -125,7 +136,7 @@
           </div>
 
           <!-- Вопрос 2: Геотехническая категория -->
-          <div id="question-2" class="question hidden">
+          <div id="question-2" class="question">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Геотехническая категория</h2>
             <div class="grid gap-4 mb-6">
               <div id="option-2" onclick="selectOption(2)" class="option-card p-4 border rounded-lg">
@@ -161,7 +172,7 @@
           </div>
 
           <!-- Вопрос 3: Специальное задание -->
-          <div id="question-3" class="question hidden">
+          <div id="question-3" class="question">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">3. Есть специальное задание?</h2>
             <div class="grid gap-4 mb-6">
               <div id="option-yes" onclick="selectSpecialOption('yes')" class="option-card p-4 border rounded-lg">
@@ -197,7 +208,7 @@
           </div>
 
           <!-- Вопрос 4: Высота здания (если нужно) -->
-          <div id="question-4" class="question hidden">
+          <div id="question-4" class="question">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">4. Высота окружающей застройки (м)</h2>
             <div class="mb-6">
               <label for="height" class="block text-sm font-medium text-gray-700 mb-2">Введите высоту окружающей застройки:</label>
@@ -220,7 +231,7 @@
           </div>
 
           <!-- Вопрос 5: Расстояние до котлована (если нужно) -->
-          <div id="question-5" class="question hidden">
+          <div id="question-5" class="question">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">5. Расстояние до котлована (м)</h2>
             <div class="mb-6">
               <label for="distance" class="block text-sm font-medium text-gray-700 mb-2">Введите расстояние до котлована:</label>
@@ -243,7 +254,7 @@
           </div>
 
           <!-- Результат -->
-          <div id="result" class="hidden">
+          <div id="result" class="question">
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
@@ -262,12 +273,13 @@
               <h3 class="mt-4 font-semibold mb-2">Не выполняются:</h3>
               <div id="not-performed-items"></div>
             </div>
+            
+            <!-- Контейнер для кнопки скачивания документа -->
+            <div id="downloadDocContainer" class="mb-6 text-center"></div>
+            
             <div class="flex justify-between">
               <button onclick="restartSurvey()" class="px-6 py-2 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
                 <i class="fas fa-redo mr-2"></i> Пройти заново
-              </button>
-              <button onclick="downloadResult()" class="px-6 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                <i class="fas fa-download mr-2"></i> Скачать
               </button>
             </div>
           </div>
@@ -317,8 +329,8 @@
       state.depth = depth;
 
       // Переход к следующему вопросу
-      document.getElementById('question-1').classList.add('hidden');
-      document.getElementById('question-2').classList.remove('hidden');
+      document.getElementById('question-1').classList.remove('active');
+      document.getElementById('question-2').classList.add('active');
       updateProgress(2, 5);
     }
 
@@ -337,19 +349,19 @@
 
       // Если глубина >= 10, пропускаем вопрос о высоте здания
       if (state.depth >= 10) {
-        document.getElementById('question-2').classList.add('hidden');
-        document.getElementById('question-3').classList.remove('hidden');
+        document.getElementById('question-2').classList.remove('active');
+        document.getElementById('question-3').classList.add('active');
         updateProgress(3, 5);
       } else {
         // Для категории 2 сразу переходим к специальному заданию
         if (state.category === "2") {
-          document.getElementById('question-2').classList.add('hidden');
-          document.getElementById('question-3').classList.remove('hidden');
+          document.getElementById('question-2').classList.remove('active');
+          document.getElementById('question-3').classList.add('active');
           updateProgress(3, 5);
         } else {
           // Для категории 3 спрашиваем высоту здания
-          document.getElementById('question-2').classList.add('hidden');
-          document.getElementById('question-4').classList.remove('hidden');
+          document.getElementById('question-2').classList.remove('active');
+          document.getElementById('question-4').classList.add('active');
           updateProgress(3, 5);
         }
       }
@@ -373,8 +385,8 @@
         calculate();
       } else {
         // Иначе спрашиваем расстояние
-        document.getElementById('question-3').classList.add('hidden');
-        document.getElementById('question-5').classList.remove('hidden');
+        document.getElementById('question-3').classList.remove('active');
+        document.getElementById('question-5').classList.add('active');
         updateProgress(5, 5);
       }
     }
@@ -394,8 +406,8 @@
       state.buildingHeight = height;
 
       // Переходим к вопросу о специальном задании
-      document.getElementById('question-4').classList.add('hidden');
-      document.getElementById('question-3').classList.remove('hidden');
+      document.getElementById('question-4').classList.remove('active');
+      document.getElementById('question-3').classList.add('active');
       updateProgress(4, 5);
     }
 
@@ -426,40 +438,66 @@
       const height = state.buildingHeight || 0;
       const dist = state.distance || 1000;
 
+      let resultDoc = "L5_docs/";
+      
       if (H < 10) {
         if (cat === "2") {
           add(0, true); add(1, true);
           add(2, false); add(3, false); add(4, spec);
+          
+          // Определение документа для категории 2
+          resultDoc += spec ? "H_less_10_cat2_spec_yes.pdf" : "H_less_10_cat2_spec_no.pdf";
         } else {
           if (height > 75) {
             if (spec) {
-              if (dist <= 5) params.forEach((_, i) => add(i, true));
-              else { add(0, true); add(1, true); add(2, true); add(3, false); add(4, true); }
+              if (dist <= 5) {
+                params.forEach((_, i) => add(i, true));
+                resultDoc += "H_less_10_cat3_height_high_spec_yes_dist_close.pdf";
+              } else {
+                add(0, true); add(1, true); add(2, true); add(3, false); add(4, true);
+                resultDoc += "H_less_10_cat3_height_high_spec_yes_dist_far.pdf";
+              }
             } else {
-              if (dist <= 5) { add(0, true); add(1, true); add(2, true); add(3, true); add(4, false); }
-              else { add(0, true); add(1, true); add(2, true); add(3, false); add(4, false); }
+              if (dist <= 5) {
+                add(0, true); add(1, true); add(2, true); add(3, true); add(4, false);
+                resultDoc += "H_less_10_cat3_height_high_spec_no_dist_close.pdf";
+              } else {
+                add(0, true); add(1, true); add(2, true); add(3, false); add(4, false);
+                resultDoc += "H_less_10_cat3_height_high_spec_no_dist_far.pdf";
+              }
             }
           } else {
             if (spec) {
-              if (dist <= 5) { add(0, true); add(1, true); add(2, false); add(3, true); add(4, true); }
-              else { add(0, true); add(1, true); add(2, false); add(3, false); add(4, true); }
+              if (dist <= 5) {
+                add(0, true); add(1, true); add(2, false); add(3, true); add(4, true);
+                resultDoc += "H_less_10_cat3_height_low_spec_yes_dist_close.pdf";
+              } else {
+                add(0, true); add(1, true); add(2, false); add(3, false); add(4, true);
+                resultDoc += "H_less_10_cat3_height_low_spec_yes_dist_far.pdf";
+              }
             } else {
-              if (dist <= 5) { add(0, true); add(1, true); add(2, false); add(3, true); add(4, false); }
-              else { add(0, true); add(1, true); add(2, false); add(3, false); add(4, false); }
+              if (dist <= 5) {
+                add(0, true); add(1, true); add(2, false); add(3, true); add(4, false);
+                resultDoc += "H_less_10_cat3_height_low_spec_no_dist_close.pdf";
+              } else {
+                add(0, true); add(1, true); add(2, false); add(3, false); add(4, false);
+                resultDoc += "H_less_10_cat3_height_low_spec_no_dist_far.pdf";
+              }
             }
           }
         }
       } else {
         if (spec) {
-          if (dist <= 5) params.forEach((_, i) => add(i, true));
-          else params.forEach((_, i) => add(i, true));
+          params.forEach((_, i) => add(i, true));
+          resultDoc += "H_more_10_spec_yes.pdf";
         } else {
           add(0, true); add(1, true); add(2, true); add(3, true); add(4, false);
+          resultDoc += "H_more_10_spec_no.pdf";
         }
       }
 
       // Показываем результат
-      document.querySelectorAll('.question').forEach(q => q.classList.add('hidden'));
+      document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
       const performedItems = document.getElementById('performed-items');
       const notPerformedItems = document.getElementById('not-performed-items');
       
@@ -470,7 +508,7 @@
         r.performed.forEach(p => {
           const div = document.createElement('div');
           div.className = 'result-item performed';
-          div.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${p}`;
+          div.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i>${p}`;
           performedItems.appendChild(div);
         });
       }
@@ -479,12 +517,19 @@
         r.notPerformed.forEach(p => {
           const div = document.createElement('div');
           div.className = 'result-item not-performed';
-          div.innerHTML = `<i class="fas fa-times-circle mr-2"></i>${p}`;
+          div.innerHTML = `<i class="fas fa-times-circle mr-2 text-red-500"></i>${p}`;
           notPerformedItems.appendChild(div);
         });
       }
 
-      document.getElementById('result').classList.remove('hidden');
+      // Добавляем кнопку скачивания документа
+      const downloadBtn = `
+        <a href="${resultDoc}" download class="inline-flex items-center px-4 py-2 btn-primary text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+          <i class="fas fa-file-pdf mr-2"></i> Скачать документ
+        </a>`;
+      document.getElementById('downloadDocContainer').innerHTML = downloadBtn;
+
+      document.getElementById('result').classList.add('active');
       updateProgress(5, 5);
     }
 
@@ -504,26 +549,26 @@
     }
 
     function backToQuestion1() {
-      document.getElementById('question-2').classList.add('hidden');
-      document.getElementById('question-1').classList.remove('hidden');
+      document.getElementById('question-2').classList.remove('active');
+      document.getElementById('question-1').classList.add('active');
       updateProgress(1, 5);
     }
 
     function backToQuestion2() {
-      document.getElementById('question-3').classList.add('hidden');
-      document.getElementById('question-2').classList.remove('hidden');
+      document.getElementById('question-3').classList.remove('active');
+      document.getElementById('question-2').classList.add('active');
       updateProgress(2, 5);
     }
 
     function backToQuestion3() {
-      document.getElementById('question-4').classList.add('hidden');
-      document.getElementById('question-3').classList.remove('hidden');
+      document.getElementById('question-4').classList.remove('active');
+      document.getElementById('question-3').classList.add('active');
       updateProgress(3, 5);
     }
 
     function backToQuestion4() {
-      document.getElementById('question-5').classList.add('hidden');
-      document.getElementById('question-4').classList.remove('hidden');
+      document.getElementById('question-5').classList.remove('active');
+      document.getElementById('question-4').classList.add('active');
       updateProgress(4, 5);
     }
 
@@ -548,14 +593,39 @@
       document.getElementById('option-yes').classList.remove('selected');
       document.getElementById('option-no').classList.remove('selected');
 
+      // Скрытие ошибок
+      document.getElementById('depth-error').classList.add('hidden');
+      document.getElementById('category-error').classList.add('hidden');
+      document.getElementById('special-error').classList.add('hidden');
+      document.getElementById('height-error').classList.add('hidden');
+      document.getElementById('distance-error').classList.add('hidden');
+
+      // Очистка результатов
+      document.getElementById('performed-items').innerHTML = '';
+      document.getElementById('not-performed-items').innerHTML = '';
+      document.getElementById('downloadDocContainer').innerHTML = '';
+
       // Показ первого вопроса
-      document.getElementById('result').classList.add('hidden');
-      document.getElementById('question-1').classList.remove('hidden');
+      document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+      document.getElementById('question-1').classList.add('active');
       updateProgress(1, 5);
     }
 
     function downloadResult() {
-      alert('Результат опроса готов к скачиванию. В реальном приложении здесь был бы PDF или другой формат.');
+      const performedItems = Array.from(document.querySelectorAll('#performed-items .result-item'))
+        .map(item => item.textContent.trim()).join("\n");
+      const notPerformedItems = Array.from(document.querySelectorAll('#not-performed-items .result-item'))
+        .map(item => item.textContent.trim()).join("\n");
+      const resultText = `Выполняются:\n${performedItems}\n\nНе выполняются:\n${notPerformedItems}`;
+
+      const blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'результаты.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function updateProgress(current, total) {
