@@ -136,7 +136,12 @@
         <div id="result" class="hidden mt-6">
           <h2 class="text-xl font-semibold mb-2">Результат:</h2>
           <div id="out"></div>
-          <button onclick="location.reload()" class="mt-4 px-4 py-2 border rounded">Начать заново</button>
+          <div class="mt-4 flex flex-col space-y-4">
+            <a id="download-link" href="#" class="px-4 py-2 btn-primary text-white rounded text-center">
+              <i class="fas fa-download mr-2"></i>Скачать отчет
+            </a>
+            <button onclick="location.reload()" class="px-4 py-2 border rounded">Начать заново</button>
+          </div>
         </div>
       </div>
     </div>
@@ -179,7 +184,7 @@
         return document.getElementById('err-cat').classList.remove('hidden');
       }
       ctx.category = parseInt(cat);
-      if (ctx.H >= 10) {
+      if (ctx.H >= 10 && ctx.H < 15) {
         show('step-3a');
       } else {
         show('step-4');
@@ -229,7 +234,10 @@
 
       const { H, category: cat, frost } = ctx;
 
+      let fileName = '';
+      
       if (H < 10) {
+        fileName = `L3_H1_cat${cat}_frost_${frost ? 'yes' : 'no'}.docx`;
         if (cat === 2) {
           if (frost) {
             add(p.hTop, true); add(p.frostDepth, true);
@@ -249,6 +257,7 @@
         }
       } else if (H < 15) {
         const over25 = ctx.totalDepth > 25;
+        fileName = `L3_H2_cat${cat}_over25_${over25 ? 'yes' : 'no'}_frost_${frost ? 'yes' : 'no'}.docx`;
         if (cat === 2) {
           if (over25 && frost) {
             [p.stressAnchor, p.stressFence, p.stressOverlap].forEach(x => add(x, false));
@@ -280,6 +289,7 @@
         }
       } else {
         const over20 = ctx.over20;
+        fileName = `L3_H3_over20_${over20 ? 'yes' : 'no'}_frost_${frost ? 'yes' : 'no'}.docx`;
         if (over20) {
           if (frost) {
             [p.hTop, p.hAll, p.stressSteel, p.stressAnchor, p.stressFence, p.stressOverlap, p.frostDepth]
@@ -314,6 +324,11 @@
         );
       }
 
+      // Установка ссылки для скачивания
+      const downloadLink = document.getElementById('download-link');
+      downloadLink.href = `L3_docs/${fileName}`;
+      downloadLink.setAttribute('download', fileName);
+      
       show('result');
     }
   </script>
